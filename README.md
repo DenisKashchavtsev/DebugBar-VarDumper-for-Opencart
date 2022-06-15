@@ -8,13 +8,14 @@ Tested on version 3.0.3.3
 2. install debugger.ocmod.xml
 3. in file /system/startup.php insert:
 
-    `// Register for debugging
+    ```
+    // Register for debugging
     include_once(modification(DIR_SYSTEM . 'library/varDumper/autoload.php'));
     
     // Debug bar
     if (DEBUG) {
-    $_SERVER['arrayDEBUG'] = array();
-    }`
+        $_SERVER['arrayDEBUG'] = array();
+    }
 
 ## Links
 
