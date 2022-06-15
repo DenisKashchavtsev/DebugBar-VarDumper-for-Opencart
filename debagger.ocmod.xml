@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>DebugBar</name>
+    <code>DebugBar</code>
+    <version>0.1</version>
+    <author>DKart</author>
+    <link>https://dkart.pro</link>
+
+    <file path="system/startup.php">
+        <operation>
+            <search>
+                <![CDATA[// Registry]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+
+              // Register for debugging
+              include_once(modification(DIR_SYSTEM . 'library/varDumper/autoload.php'));
+
+              // DebugBar
+			  if (DEBUG) {
+				  $_SERVER['arrayDEBUG'] = array();
+			  }
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file path="system/library/db/mysqli.php">
+        <operation>
+            <search>
+                <![CDATA[$query = $this->connection->query($sql);]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+			  // DebugBar
+			  if (DEBUG) {
+				  $start = microtime(true);
+			  }
+		    ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search>
+                <![CDATA[$query = $this->connection->query($sql);]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+			  // DebugBar
+			  if (DEBUG) {
+				  $time = microtime(true) - $start;
+                  $trace = debug_backtrace();
+
+                  $rootPatch = str_replace('system/', '', DIR_SYSTEM);
+                  $callerFile = isset($trace[1]['file']) ? str_replace($rootPatch, '', $trace[1]['file']) : '';
+                  $caller = $trace[2];
+
+				  $_SERVER['arrayDEBUG'][] = array(
+					  'sql' => $sql,
+					  'time' => $time,
+                      'file' => $callerFile,
+                      'caller' => isset($caller['class'])
+                          ? $caller['class'].'::'.$caller['function']
+                          : $caller['function']
+				  );
+			  }
+			  
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file path="system/library/db/mysql.php">
+        <operation>
+            <search>
+                <![CDATA[$resource = mysql_query($sql, $this->connection);]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+			  // DebugBar
+			  if (DEBUG) {
+				  $start = microtime(true);
+			  }
+		    ]]>
+            </add>
+        </operation>
+        <operation>
+            <search>
+                <![CDATA[$resource = mysql_query($sql, $this->connection);]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+			  // DebugBar
+			  if (DEBUG) {
+				  $time = microtime(true) - $start;
+
+				  $_SERVER['arrayDEBUG'][] = array(
+					  'sql' => $sql, 
+					  'time' => $time, 
+				  );
+			  }
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file path="system/library/response.php">
+        <operation>
+            <search>
+                <![CDATA[echo $output;]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+
+			  // DebugBar
+			  if (DEBUG) {
+                $outputDebugBar = '
+                <div id="resizableDebugBar" class="ui-widget-content">
+                    <table class="debug-sql">
+                        <tbody class="ui-sortable">';
+                            foreach ($_SERVER['arrayDEBUG'] as $key) {
+                                if ((round($key['time'] * 1000)) > 50) {
+                                    $outputDebugBar .= '<tr data-item="id" class="alert">';
+                                } else {
+                                    $outputDebugBar .= '<tr data-item="id">';
+                                }
+
+                                $outputDebugBar .= '
+                                <td>
+                                    <span data-name="sort" data-value="' . $key['time'] . '" class="dragger ui-sortable-handle">' . $key['time'] . '</span>
+                                </td>
+                                <td>
+                                    ' . $key['caller'] . '<br>' . $key['file'] . '
+                                </td>
+                                <td>
+                                    <span>' . $key['sql'] . '</span>
+                                </td>';
+                            }
+                        $outputDebugBar .= '
+                        </tbody>
+                    </table>
+                </div>';
+                $outputDebugBar .= '
+                <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+                <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+                <script>
+                        $( "#resizableDebugBar" ).resizable({
+                            minHeight: 20,
+                            maxHeight: 700,
+                            ghost:true,
+                            handles: "n",
+                        });
+//
+//                      $(" . ui - sortable tr").sort(function(a, b) {
+//                        return +$(b).find("[data - name = sort]").attr("data - value") - +$(a).find("[data - name = sort]").attr("data - value");
+//                      })
+//                      .appendTo(" . ui - sortable");
+                </script>
+                <style>
+                    div#resizableDebugBar {
+                        position: fixed;
+                        bottom: 0;
+                        background-color: white;
+                        overflow: hidden;
+                        width: 100%!important;
+                        box-shadow: 0 1px 0 rgb(0 0 0 / 5%), 0 0 10px rgb(0 0 0 / 15%);
+                        height: 200px;
+                        z-index: 1001;
+                        overflow-y: scroll;
+                    }
+                    .debug-sql {
+                        display: flex;
+                    }
+                    .ui-resizable-n {
+                        cursor: row-resize;
+                        height: 12px;
+                        width: 100%;
+                        top: -6px;
+                        left: 0;
+                    }
+                    div#resizableDebugBar tr:nth-child(odd) {
+                        background-color: #eee;
+                    }
+                    div#resizableDebugBar td {
+                        min-width: 250px;
+                        color: #696969;
+                        border-bottom: 1px solid #eee;
+                    }
+                </style>
+                ';
+                echo $outputDebugBar;
+		    }
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+</modification>
+
