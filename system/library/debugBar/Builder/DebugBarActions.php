@@ -10,21 +10,24 @@ trait DebugBarActions
     public $actions;
 
     /**
-     * @param $patch
+     * @param $view
      * @return void
      */
-    public function addController($patch)
+    public function addAction($view)
     {
+        $trace = debug_backtrace();
+
         $this->actions[] = [
-            'controller' => $patch,
-            'method' => $patch
+            'controller' => $trace[3]['file'],
+            'class' => $trace[4]['class'],
+            'view' => $view
         ];
     }
 
     /**
      * @return array
      */
-    public function getControllers()
+    public function getActions()
     {
         return $this->actions;
     }

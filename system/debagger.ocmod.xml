@@ -67,6 +67,31 @@
         </operation>
     </file>
 
+    <file path="system/library/template/*.php">
+        <operation>
+            <search>
+                <![CDATA[namespace Template;]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+
+                use debugBar\Builder\DebugBarBuilder;
+		    ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search>
+                <![CDATA[$file = ]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+			  DebugBarBuilder::getInstance()->addAction($file);
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
     <file path="admin/controller/common/developer.php">
         <operation>
             <search>

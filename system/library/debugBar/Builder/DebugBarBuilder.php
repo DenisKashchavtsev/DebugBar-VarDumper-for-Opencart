@@ -6,6 +6,8 @@ use debugBar\Builder\DebugBarQueries;
 
 class DebugBarBuilder extends Singleton
 {
-    use DebugBarQueries, DebugBarMessages;
+    use DebugBarQueries,
+        DebugBarMessages,
+        DebugBarActions;
     
 }

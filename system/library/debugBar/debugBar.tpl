@@ -15,7 +15,7 @@
                         <a class="nav-link" id="queries-tab" data-toggle="tab" href="#queries" role="tab" aria-controls="queries" aria-selected="false">Queries</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+                        <a class="nav-link" id="actions-tab" data-toggle="tab" href="#actions" role="tab" aria-controls="actions" aria-selected="false">Actions</a>
                     </li>
                 </ul>
             </div>
@@ -83,7 +83,17 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+                <div class="tab-pane fade" id="actions" role="tabpanel" aria-labelledby="actions-tab">
+                    <?php if($actions) { ?>
+                    <?php foreach($actions as $action) { ?>
+                    <div class="action">
+                        <span><?php echo $action['class']; ?></span> -
+                        <span><?php echo $action['controller']; ?></span> -
+                        <span><?php echo $action['view']; ?></span>
+                    </div>
+                    <?php } ?>
+                    <?php } ?>
+                </div>
             </div>
         </div>
     </div>
@@ -182,6 +192,8 @@
         height: 33px;
         border-top: 3px solid #229ac8;
         overflow: hidden;
+        position: fixed;
+        width: 100%;
     }
     div.debug-header-right {
         float: right;
@@ -232,5 +244,8 @@
     }
     .message.type {
         background: rgba(0, 0, 255, 0.5);
+    }
+    .debug-body {
+        padding-top: 36px;
     }
 </style>

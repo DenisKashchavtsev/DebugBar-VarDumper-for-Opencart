@@ -55,6 +55,7 @@ class DebugBar
         $this->data['user_token'] = $this->session->data['user_token'];
         $this->data['queries'] = $this->debugBar->getQueries();
         $this->data['messages'] = $this->debugBar->getMessages();
+        $this->data['actions'] = $this->debugBar->getActions();
 
         return $this;
     }
