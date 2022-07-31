@@ -53,6 +53,9 @@ Tested on version 3.0.3.3
    
    $registry->set('debugBar', \debugBar\Builder\DebugBarBuilder::getInstance());
     ```
+3. clear modifications
+
+Notice: the debugger will be displayed if you are authorized in the admin panel!
 
 ## Links
 
