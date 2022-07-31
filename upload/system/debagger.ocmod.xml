@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>DebugBar</name>
+    <code>DebugBar</code>
+    <version>0.2 alpha</version>
+    <author>DKart</author>
+    <link>https://dkart.pro</link>
+
+    <file path="system/library/db/mysqli.php">
+        <operation>
+            <search>
+                <![CDATA[class MySQLi {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+			  use debugBar\Builder\DebugBarBuilder;
+
+		    ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search>
+                <![CDATA[$query = $this->connection->query($sql);]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+			  DebugBarBuilder::getInstance()->startQueryMicroTime();
+		    ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search>
+                <![CDATA[$query = $this->connection->query($sql);]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+			  DebugBarBuilder::getInstance()->addQuery($sql);
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file path="system/library/log.php">
+        <operation>
+            <search>
+                <![CDATA[class Log {]]>
+            </search>
+            <add position="before">
+                <![CDATA[
+			  use debugBar\Builder\DebugBarBuilder;
+
+		    ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search>
+                <![CDATA[public function write($message) {]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+			  DebugBarBuilder::getInstance()->addMessage($message, 'log');
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file path="system/library/template/*.php">
+        <operation>
+            <search>
+                <![CDATA[namespace Template;]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+
+                use debugBar\Builder\DebugBarBuilder;
+		    ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search>
+                <![CDATA[$file = ]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+			  DebugBarBuilder::getInstance()->addAction($file);
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file path="system/engine/loader.php">
+        <operation>
+            <search>
+                <![CDATA[<?php]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+                use debugBar\Builder\DebugBarBuilder;
+		    ]]>
+            </add>
+        </operation>
+
+        <operation>
+            <search>
+                <![CDATA[$result = $this->registry->get('event')->trigger('view/' . $trigger . '/after', array(&$route, &$data, &$output));]]>
+            </search>
+            <add position="after">
+                <![CDATA[
+                $actions = DebugBarBuilder::getInstance()->getActions();
+                $lastAction = end($actions);
+
+                $startDiv = '<!-- StartAction ' . $lastAction['class'] . '@' . $lastAction['function'] . ' -->';
+
+                $endDiv = '<!-- EndAction ' . $lastAction['class'] . '@' . $lastAction['function'] . ' -->';
+
+                if($output) {
+                    $output = $startDiv . $output . $endDiv;
+                }
+		    ]]>
+            </add>
+        </operation>
+    </file>
+
+</modification>

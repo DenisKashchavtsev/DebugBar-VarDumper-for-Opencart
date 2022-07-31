@@ -1,0 +1,10 @@
+{
+    "autoload": {
+        "psr-4": {
+            "debugBar\\":""
+        }
+    },
+    "require": {
+        "symfony/var-dumper": "2.7.0"
+    }
+}
